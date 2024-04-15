@@ -1,0 +1,101 @@
+# V1.1 Changes to logs creating new 'type.log.date' files
+
+version: 1
+disable_existing_loggers: False
+
+# Format the logger prints in
+formatters:
+  simple:
+    format: "%(asctime)s | [%(levelname)7s][%(filename)20s] | %(message)s"
+  detailed:
+    format: "%(asctime)s.%(msecs)03d | [%(levelname)7s][%(module)s - %(funcName)s] | %(message)s"
+handlers:
+  # These settings handle the logging into terminal
+  debug_console: # debug
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: detailed
+    stream: ext://sys.stdout
+  info_console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simple
+    stream: ext://sys.stdout
+  warning_console:
+    class: logging.StreamHandler
+    level: WARNING
+    formatter: simple
+    stream: ext://sys.stdout
+  error_console:
+    class: logging.StreamHandler
+    level: ERROR
+    formatter: simple
+    stream: ext://sys.stdout
+
+  # Handle the logging into files
+  debug_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: ./data/logs/debug.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+  info_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: ./data/logs/info.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+  warning_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: WARNING
+    formatter: simple
+    filename: ./data/logs/warning.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+  error_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: ERROR
+    formatter: simple
+    filename: ./data/logs/error.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+
+loggers: # Logger levels available
+  All: # All logs
+    level: DEBUG
+    handlers:
+      [
+        debug_console,
+        debug_file_handler,
+        info_file_handler,
+        warning_file_handler,
+        error_file_handler,
+      ]
+    propagate: yes
+
+  Dev: # for debugging purposes
+    level: INFO
+    handlers:
+      [
+        info_console,
+        debug_file_handler,
+        info_file_handler,
+        warning_file_handler,
+        error_file_handler,
+      ]
+    propagate: yes
+
+  Prod: # Production use
+    level: WARNING
+    handlers: [warning_console, warning_file_handler, error_file_handler]
+    propagate: yes

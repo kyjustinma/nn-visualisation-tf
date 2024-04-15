@@ -1,0 +1,113 @@
+# V1.1 Added comments and changed PROD to use INFO console.
+# V1 Changes to logs creating new 'type.log.date' files.
+
+version: 1
+disable_existing_loggers: False
+
+### Create format types Simple and Detailed for Debugging vs Production
+formatters:
+  default:
+    format: "%(levelname)s:%(name)s:%(message)s"
+  simple:
+    format: "%(asctime)s | [%(levelname)7s][%(filename)10s] | %(message)s"
+  detailed:
+    format: "%(asctime)s | [%(levelname)7s][%(module)s - %(funcName)s] | %(message)s"
+
+### handlers manage logging settings to the terminal
+handlers:
+  debug_console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: detailed # Based on the 'formatters'
+    stream: ext://sys.stdout
+  info_console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simple
+    stream: ext://sys.stdout
+  warning_console:
+    class: logging.StreamHandler
+    level: WARNING
+    formatter: simple
+    stream: ext://sys.stdout
+  error_console:
+    class: logging.StreamHandler
+    level: ERROR
+    formatter: simple
+    stream: ext://sys.stdout
+
+  ### '<LOG_TYPE>_file_handler' save the terminal logging to their respective log files
+  debug_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler # Defines the class for the log file
+    level: DEBUG
+    formatter: detailed
+    filename: ./data/logs/debug.log # Saved Location
+    when: midnight # Time the file is rotated
+    interval: 1 # (Days) Roller over intervals
+    backupCount: 31 # (Days) Number of days for logging backup
+    encoding: utf8
+  info_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: ./data/logs/info.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+  warning_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: WARNING
+    formatter: simple
+    filename: ./data/logs/warning.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+  error_file_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: ERROR
+    formatter: simple
+    filename: ./data/logs/error.log
+    when: midnight
+    interval: 1
+    backupCount: 31
+    encoding: utf8
+
+### Define the loggers for python to use
+loggers: # Logger levels available
+  ALL: # ALL LOGGERS
+    level: DEBUG
+    handlers:
+      [
+        debug_console,
+        debug_file_handler,
+        info_file_handler,
+        warning_file_handler,
+        error_file_handler,
+      ]
+    propagate: no
+
+  DEV: # For Development INFO
+    level: INFO
+    handlers:
+      [
+        info_console,
+        debug_file_handler,
+        info_file_handler,
+        warning_file_handler,
+        error_file_handler,
+      ]
+    propagate: no
+
+  PROD: # Production ONLY show warning
+    level: WARNING
+    handlers:
+      [
+        warning_console,
+        debug_file_handler,
+        info_file_handler,
+        warning_file_handler,
+        error_file_handler,
+      ]
+    propagate: no
